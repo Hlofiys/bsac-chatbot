@@ -1,5 +1,6 @@
 # Logs
 logs
+data
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -53,6 +54,8 @@ web_modules/
 
 # Optional eslint cache
 .eslintcache
+
+.DS_Store
 
 # Optional stylelint cache
 .stylelintcache
