@@ -43,7 +43,7 @@ function preprocessText(text: string): string {
 }
 
 // PDF Upload and Processing Endpoint
-app.post('/upload', async (req, res): Promise<any> => {
+app.post('/api/upload', async (req, res): Promise<any> => {
   try {
     const files = await fs.readdir(DATA_DIRECTORY);
     const pdfFiles = files.filter(file => path.extname(file).toLowerCase() === '.pdf');
@@ -92,7 +92,7 @@ const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: s
 };
 
 // Chat Endpoint with RAG
-app.post('/chat', async (req, res): Promise<any> => {
+app.post('/api/chat', async (req, res): Promise<any> => {
   try {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
