@@ -1,0 +1,51 @@
+---
+networks:
+  bsac_chatbot_network:
+    driver: bridge
+services:
+  api:
+    container_name: bsac_chatbot_api
+    image: hlofiys/bsac-chatbot-api:master
+    networks:
+      - bsac_chatbot_network
+    depends_on:
+      - bsac_chatbot_db
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`chat.hlofiys.xyz`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+  bsac_chatbot_db:
+    container_name: bsac_chatbot_db
+    image: chromadb/chroma:latest
+    networks:
+      - bsac_chatbot_network
+    restart: unless-stopped
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.1
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      # The HTTP port
+      - "8081:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "6000:8080"
+    networks:
+      - pulsometer_network
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --label-enable
