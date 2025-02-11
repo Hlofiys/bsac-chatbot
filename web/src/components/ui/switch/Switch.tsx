@@ -1,4 +1,5 @@
 // ThemeSwitch.tsx
+'use client'
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTheme } from '@/reduxToolkit/Slices';
@@ -12,7 +13,6 @@ const ThemeSwitch: React.FC = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     dispatch(setTheme(newTheme)); // Обновляем тему в Redux
-    document.body.setAttribute('data-theme', newTheme); // Применяем тему к body
   };
 
   return (
