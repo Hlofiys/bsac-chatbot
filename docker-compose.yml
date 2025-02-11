@@ -11,6 +11,10 @@ services:
     depends_on:
       - bsac_chatbot_db
     restart: unless-stopped
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - CHROMA_URL=${CHROMA_URL}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
