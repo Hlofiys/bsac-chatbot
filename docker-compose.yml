@@ -24,6 +24,8 @@ services:
   bsac_chatbot_db:
     container_name: bsac_chatbot_db
     image: chromadb/chroma:latest
+    ports:
+      - 8000:8000
     networks:
       - bsac_chatbot_network
     restart: unless-stopped
