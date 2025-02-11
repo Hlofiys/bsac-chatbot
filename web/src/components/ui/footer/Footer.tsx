@@ -3,6 +3,7 @@ import {
   FC,
   KeyboardEventHandler,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -14,11 +15,15 @@ import { IMessage } from "../chatList/messageSection/MessageSection";
 import { useDispatch, useSelector } from "react-redux";
 import { IInitialState } from "@/reduxToolkit/Interfaces";
 import { setMessage, setSuccessMessage } from "@/reduxToolkit/Slices";
+import { useSendMessage } from "@/api/hooks/useSendMessage";
 
 const Footer: FC = () => {
   const [messageContant, setMessageContant] = useState<string>("");
   const messages = useSelector((state: IInitialState) => state.messages);
   const dispatch = useDispatch();
+
+  const { mutateAsync: send_message, isLoading: isLoadingSending } =
+    useSendMessage();
 
   const handler = useCallback(() => {
     const localDate = new Date();
@@ -35,15 +40,20 @@ const Footer: FC = () => {
       id: messages.length + 1,
       sender: "Вы",
       sendDate: formattedDate,
-      sending: true,
+      sending: isLoadingSending,
       message: messageContant,
     };
 
+    send_message(messageContant);
     dispatch(setMessage(newMessage));
     setMessageContant("");
+  }, [messageContant, messages, dispatch, send_message, isLoadingSending]);
 
-    setTimeout(() => dispatch(setSuccessMessage(messages.length + 1)), 5000);
-  }, [messageContant, messages, dispatch]);
+  useEffect(() => {
+    if (!isLoadingSending) {
+      dispatch(setSuccessMessage(messages.length + 1));
+    }
+  }, [isLoadingSending, dispatch, messages.length]);
 
   const isDisabledSending = useMemo(
     () => !!!messageContant.trim() || messages[messages.length - 1]?.sending,

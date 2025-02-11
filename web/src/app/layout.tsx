@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import "./styles/layout.css";
 import { Provider } from "react-redux";
 import store from "@/reduxToolkit/Store";
