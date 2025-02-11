@@ -1,3 +1,4 @@
+"use client"
 import { Middleware } from "@reduxjs/toolkit";
 import { hydrateTheme } from "../Slices";
 import { IMessage } from "@/components/ui/chatList/messageSection/MessageSection";
