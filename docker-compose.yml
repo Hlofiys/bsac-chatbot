@@ -3,7 +3,7 @@ networks:
   bsac_chatbot_network:
     driver: bridge
 services:
-  api:
+  bsac_chatbot_api:
     container_name: bsac_chatbot_api
     image: hlofiys/bsac-chatbot-api:master
     networks:
@@ -43,7 +43,7 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "6000:8080"
     networks:
-      - pulsometer_network
+      - bsac_chatbot_network
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
