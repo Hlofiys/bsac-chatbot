@@ -33,8 +33,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 # Copy other necessary files that were created at build step.
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.env* ./
-COPY --from=builder /app/public ./public
 
 # Expose the port your app runs on (if applicable)
 # Check your application and uncomment to expose port.
