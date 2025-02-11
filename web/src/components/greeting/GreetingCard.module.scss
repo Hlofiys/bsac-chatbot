@@ -1,0 +1,77 @@
+.welcomeCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 10px;
+    font-family: "Montserrat-Regular";
+    background: var(--botMessageContentBg);
+    color: var(--botMessageContentColor);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+
+    .greeting{
+      width: 280px;
+      height: 250px;
+    }
+  
+    .content {
+      h2 {
+        text-align: center;
+        font-size: 18px;
+        margin: 0;
+        font-family: "Montserrat-Bold";
+        color: var(--darkTextColor);
+      }
+  
+      p {
+        font-size: 14px;
+        margin: 4px 0 0;
+        text-align: justify;
+        color: var(--timeColor);
+      }
+    }
+    @media (max-width: 768px) {
+      max-width: 250px;
+      padding: 12px;
+      gap: 8px;
+
+      .greeting{
+        width: 250px;
+        height: 230px;
+      }
+      
+      .content {
+        h2 {
+          font-size: 14px;
+        }
+  
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+    @media (max-width: 480px) {
+      max-width: 200px;
+      padding: 12px;
+      gap: 8px;
+
+      .greeting{
+        width: 150px;
+        height: 130px;
+      }
+  
+      .content {
+        h2 {
+          font-size: 12px;
+        }
+  
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+  

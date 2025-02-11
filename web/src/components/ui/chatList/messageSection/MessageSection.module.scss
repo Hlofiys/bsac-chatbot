@@ -1,0 +1,131 @@
+.messageSection {
+  width: 100%;
+  display: flex;
+  align-items: start;
+  font-family: "Montserrat-Regular";
+  gap: 14px;
+
+  &.botSection {
+    flex-direction: row;
+  }
+  &.userSection {
+    flex-direction: row-reverse;
+
+    .textBlock {
+      .messageHeader {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+
+  .senderImg {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+  }
+
+  .textBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    .messageHeader {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      p {
+        font-family: "Montserrat-Medium";
+        color: var(--darkTextColor);
+        margin: 0;
+        padding: 0;
+      }
+      span {
+        font-family: "Montserrat-Regular";
+        font-size: 14px;
+        color: var(--timeColor);
+      }
+    }
+
+    aside {
+      font-size: 14pt;
+      padding: 16px 24px;
+
+      &.bot {
+        color: var(--botMessageContentColor);
+        background: var(--botMessageContentBg);
+        border-radius: 0px 14px 14px 14px;
+      }
+      &.user {
+        color: var(--userMessageContentColor);
+        background: var(--userMessageContentBg);
+        border-radius: 14px 0px 14px 14px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .messageSection {
+    gap: 10px;
+
+    &.botSection {
+      flex-direction: row-reverse;
+      .textBlock {
+        .messageHeader {
+          flex-direction: row-reverse;
+        }
+      }
+    }
+
+    .senderImg {
+      width: 35px !important;
+      height: 35px !important;
+    }
+    
+    .textBlock {
+      gap: 5px;
+
+      .messageHeader {
+        gap: 10px;
+        font-size: 12px !important;
+
+        span {
+          font-size: 10px !important;
+        }
+      }
+
+      aside {
+        font-size: 12pt !important;
+        padding: 12px 18px;
+
+        &.bot {
+          border-radius: 14px 0px 14px 14px !important;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .messageSection {
+    
+    .senderImg {
+      display: none;
+    }
+    .textBlock {
+      .messageHeader {
+        font-size: 12px !important;
+  
+        span {
+          font-size: 10px !important;
+        }
+      }
+  
+      aside {
+        font-size: 10pt !important;
+        padding: 9px 15px;
+      }
+    }
+  }
+}

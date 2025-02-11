@@ -1,0 +1,28 @@
+/**/
+@font-face{
+    font-family: 'Montserrat-Light';
+    src: url('./Montserrat-Light.ttf');
+    font-size: normal;
+    font-weight: normal;
+}/*paragraph, */
+
+@font-face{
+    font-family: 'Montserrat-Regular';
+    src: url('./Montserrat-Regular.ttf');
+    font-size: normal;
+    font-weight: normal;
+}/*text bigger then paragraph*/
+
+@font-face{
+    font-family: 'Montserrat-Medium';
+    src: url('./Montserrat-Medium.otf');
+    font-size: normal;
+    font-weight: normal;
+}/*buttons, 2lvl header */
+
+@font-face{
+    font-family: 'Montserrat-Bold';
+    src: url('./Montserrat-Bold.ttf');
+    font-size: normal;
+    font-weight: normal;
+}/*1lvl header*/

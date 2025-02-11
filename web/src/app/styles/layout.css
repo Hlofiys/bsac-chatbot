@@ -1,0 +1,51 @@
+@import url("/fonts/fonts.css");
+
+[data-theme="dark"] {
+  --bgColor: #3f3f3f; /* #3F3F3F -dark; #f5f5f5 -light */
+  --headerBgColor: #121212; /* #121212 -dark; #ffffff -light */
+  --darkTextColor: #f0f0f0; /* #F0F0F0 -dark; #515151 -light*/
+  --timeColor: #A0A0A0; 
+  --botMessageContentBg: #292929;
+  --userMessageContentBg: #00A3FF;
+  --botMessageContentColor: #FFFFFF;
+  --userMessageContentColor: #FFFFFF;
+  --strokeColor: #303030; /* #303030 -dark; #dfdfdf -light*/
+  --inputPlaceholder: #a0a0a0; /* #A0A0A0 -dark; #A0A0A0 -light */
+  --blueColor: #00a3ff;
+}
+
+[data-theme="light"] {
+  --bgColor: #f5f5f5; /* #3F3F3F -dark; #f5f5f5 -light */
+  --headerBgColor: #ffffff; /* #121212 -dark; #ffffff -light */
+  --darkTextColor: #515151; /* #F0F0F0 -dark; #515151 -light*/
+  --timeColor: #A0A0A0; 
+  --botMessageContentBg: #FFFFFF;
+  --userMessageContentBg: #00A3FF;
+  --botMessageContentColor: #515151;
+  --userMessageContentColor: #FFFFFF;
+  --strokeColor: #dfdfdf; /* #303030 -dark; #dfdfdf -light*/
+  --inputPlaceholder: #a0a0a0; /* #A0A0A0 -dark; #A0A0A0 -light */
+  --blueColor: #00a3ff;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bgColor);
+  margin: 0;
+/* 
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  } */
+}
