@@ -1,5 +1,5 @@
 import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { Document } from 'langchain/document';
 import * as fs from 'fs/promises';
 import pdf from 'pdf-parse';
@@ -14,16 +14,16 @@ const port = process.env.PORT || 3000;
 // Configuration
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
 const COHERE_API_KEY = process.env.COHERE_API_KEY!;
+const CHROMA_URL = process.env.CHROMA_URL!;
 const DATA_DIRECTORY = path.join(__dirname, '../data');
 const CHROMA_COLLECTION_NAME = 'chatbot-collection';
 
 // Initialize clients and models
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+const model = new ChatGoogleGenerativeAI({apiKey: GOOGLE_API_KEY, model: 'gemini-2.0-flash'});
 const embeddings = new CohereEmbeddings({
   apiKey: COHERE_API_KEY,
   model: 'embed-multilingual-v3.0',
 });
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 app.use(express.json());
 
@@ -70,7 +70,7 @@ app.post('/upload', async (req, res): Promise<any> => {
     console.log(`Split document into ${docs.length} chunks`);
 
     // Add documents to the vector store
-    const chromaStore = await Chroma.fromDocuments(docs, embeddings, { collectionName: CHROMA_COLLECTION_NAME });
+    const chromaStore = await Chroma.fromDocuments(docs, embeddings, { collectionName: CHROMA_COLLECTION_NAME, url: CHROMA_URL });
     const count = await chromaStore.collection?.count();
     console.log(`Documents in collection: ${count}`);
     console.log('Documents added to ChromaDB');
@@ -84,10 +84,10 @@ app.post('/upload', async (req, res): Promise<any> => {
 // Helper function to retrieve (or create) a Chroma vector store
 const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: string) => {
   try {
-    return await Chroma.fromExistingCollection(embeddings, { collectionName });
+    return await Chroma.fromExistingCollection(embeddings, { collectionName, url: CHROMA_URL});
   } catch (e) {
     console.log(`Collection "${collectionName}" not found, creating a new one.`);
-    return new Chroma(embeddings, { collectionName });
+    return new Chroma(embeddings, { collectionName, url: CHROMA_URL });
   }
 };
 
@@ -114,8 +114,8 @@ ${context}
 Вопрос: ${message}
 Ответ:`;
     
-    const result = await model.generateContent(prompt);
-    res.json({ response: result.response.text() });
+    const result = await model.invoke(prompt);
+    res.json({ response: result.content });
   } catch (error: any) {
     console.error('Chat error:', error);
     res.status(500).json({ error: 'Failed to generate response', details: error.message });
