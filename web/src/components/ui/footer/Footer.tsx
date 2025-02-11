@@ -22,7 +22,7 @@ const Footer: FC = () => {
   const messages = useSelector((state: IInitialState) => state.messages);
   const dispatch = useDispatch();
 
-  const { mutateAsync: send_message, isLoading: isLoadingSending } =
+  const { mutateAsync: send_message, isPending: isLoadingSending } =
     useSendMessage();
 
   const handler = useCallback(() => {
