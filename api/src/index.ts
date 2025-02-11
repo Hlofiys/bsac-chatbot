@@ -94,6 +94,9 @@ const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: s
 // Chat Endpoint with RAG
 app.post('/api/chat', async (req, res): Promise<any> => {
   try {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
 
