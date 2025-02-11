@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { Document } from 'langchain/document';
 import * as fs from 'fs/promises';
@@ -7,6 +8,7 @@ import * as path from 'path';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { CohereEmbeddings } from "@langchain/cohere";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,6 +28,7 @@ const embeddings = new CohereEmbeddings({
 });
 
 app.use(express.json());
+app.use(cors());
 
 /**
  * Preprocesses the raw text extracted from a PDF.
@@ -94,6 +97,9 @@ const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: s
 // Chat Endpoint with RAG
 app.post('/api/chat', async (req, res): Promise<any> => {
   try {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
 
