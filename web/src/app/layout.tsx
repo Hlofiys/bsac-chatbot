@@ -18,6 +18,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem("theme") || "light";
+                document.documentElement.dataset.theme = theme;
+              })();
+            `,
+          }}
+        />
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta property="og:title" content="Bsac-Assistent" />

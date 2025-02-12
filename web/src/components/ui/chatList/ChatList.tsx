@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { FC, useMemo, useEffect, useRef } from "react";
 import MessageSection from "./messageSection/MessageSection";
 import styles from "./ChatList.module.scss";
@@ -20,13 +20,15 @@ const ChatList: FC = () => {
 
   return (
     <div
-      className={`${styles.chatListContainer} ${!isEmptyChat ? styles.greeting : ""}`}
+      className={`${styles.chatListContainer} ${
+        !isEmptyChat ? styles.greeting : ""
+      }`}
     >
       {(isEmptyChat &&
         messages.map((message) => (
           <MessageSection key={message.id} {...message} />
         ))) || <GreetingCard />}
-      
+
       {/* Реф для последнего сообщения */}
       <div ref={chatEndRef} />
     </div>

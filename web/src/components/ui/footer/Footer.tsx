@@ -21,9 +21,11 @@ import {
   setSuccessMessage,
 } from "@/reduxToolkit/Slices";
 import { useSendMessage } from "@/api/hooks/useSendMessage";
+import { ISendMessage } from "@/api/services/message/Message.service";
 
 const Footer: FC = () => {
   const [messageContant, setMessageContant] = useState<string>("");
+  const [newBotMessageId, setNewBotMessageId] = useState<number | null>(null);
   const messages = useSelector((state: IInitialState) => state.messages);
   const dispatch = useDispatch();
 
@@ -31,7 +33,6 @@ const Footer: FC = () => {
     data: responseMessage,
     mutateAsync: send_message,
     isSuccess,
-    
   } = useSendMessage();
 
   const getFormattedDate = useCallback(() => {
@@ -54,46 +55,59 @@ const Footer: FC = () => {
       isBot: true,
       sending: true,
       sender: "БГАС ассистент",
-      sendDate: '',
+      sendDate: "",
       message: "",
     };
     dispatch(setMessage(newMessageUser));
     dispatch(setMessage(newMessageBot));
+    setNewBotMessageId(messageId + 1);
     setMessageContant("");
 
     try {
-      await send_message(messageContant);
+      const body: ISendMessage = {
+        message: messageContant,
+        history: messages.map((item) => ({
+          role: item.isBot ? "assistant" : "user",
+          content: item.message,
+        })),
+      };
+
+      console.log(body)
+      await send_message(body);
       dispatch(setSuccessMessage(messageId)); // Изменяем статус отправленного сообщения
     } catch (error) {
       console.error("Ошибка при отправке сообщения:", error);
-      dispatch(setErrorMessage({id: messageId, refetch: ()=>send_message(messageContant)}));
-    }
-  }, [messageContant, dispatch, send_message, getFormattedDate]);
-
-  useEffect(() => {
-    if (isSuccess && responseMessage?.data.response) {
-      // const botMessage: IMessage = {
-      //   id: Date.now(), // Уникальный ID для бота
-      //   isBot: true,
-      //   sending: false,
-      //   sender: "БГАС ассистент",
-      //   sendDate: getFormattedDate(),
-      //   message: responseMessage.data.response || "Ошибка",
-      // };
-
-      // dispatch(setMessage(botMessage));
       dispatch(
-        setMessageContantToBot({
-          id: messages[messages.length - 1].id,
-          message: responseMessage?.data.response,
-          sendDate: getFormattedDate()
+        setErrorMessage({
+          id: messageId,
+          refetch: () => {},
         })
       );
     }
-  }, [messages, isSuccess, responseMessage?.data.response, dispatch, getFormattedDate]);
+  }, [messages, messageContant, dispatch, send_message, getFormattedDate]);
+
+  useEffect(() => {
+    if (isSuccess && responseMessage?.data.response && newBotMessageId) {
+      dispatch(
+        setMessageContantToBot({
+          id: newBotMessageId,
+          message: responseMessage?.data.response,
+          sendDate: getFormattedDate(),
+        })
+      );
+    }
+  }, [
+    newBotMessageId,
+    isSuccess,
+    responseMessage?.data.response,
+    dispatch,
+    getFormattedDate,
+  ]);
 
   const isDisabledSending = useMemo(
-    () => !!!messageContant.trim() || messages[messages.length - 1]?.sending,
+    () =>
+      !!!messageContant.trim() ||
+      (messages.length > 0 && messages[messages.length - 1].sending),
     [messages, messageContant]
   );
 

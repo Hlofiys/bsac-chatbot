@@ -1,9 +1,10 @@
-import React from "react";
+"use client";
+import { FC } from "react";
 import styles from "./GreetingCard.module.scss";
 import Lottie from "lottie-react";
 import greeting from "../../../public/lottie/greeting.json";
 
-const GreetingCard = () => {
+const GreetingCard: FC = () => {
   return (
     <div className={styles.welcomeCard}>
       <Lottie animationData={greeting} className={styles.greeting} />

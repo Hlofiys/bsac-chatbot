@@ -1,12 +1,11 @@
+"use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TTheme } from "./Interfaces";
 import { IInitialState } from "./Interfaces";
 import { IMessage } from "@/components/ui/chatList/messageSection/MessageSection";
 
-// const initialTheme = (typeof window !== 'undefined' && localStorage.getItem('theme')) || 'light';
-
 const initialState: IInitialState = {
-  theme: "dark" as "light" | "dark",
+  theme: "dark",
   messages: [],
 };
 
@@ -37,9 +36,17 @@ const messagesSlice = createSlice({
           : message
       ));
     },
-    setErrorMessage: (_state, payload: PayloadAction<{id: number, refetch: ()=>void}>) => {
+    setErrorMessage: (
+      _state,
+      payload: PayloadAction<{ id: number; refetch: () => void }>
+    ) => {
       return (_state = _state.map((message) =>
-        message.id === payload.payload.id ? { ...message, error: {status: true, refetch: payload.payload.refetch} } : message
+        message.id === payload.payload.id
+          ? {
+              ...message,
+              error: { status: true, refetch: payload.payload.refetch },
+            }
+          : message
       ));
     },
     setMessageContantToBot: (

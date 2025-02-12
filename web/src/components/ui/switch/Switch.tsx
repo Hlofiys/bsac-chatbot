@@ -11,6 +11,7 @@ const ThemeSwitch: React.FC = () => {
   const theme = useSelector((state: IInitialState) => state.theme);
 
   const toggleTheme = () => {
+    console.log(theme)
     const newTheme = theme === 'light' ? 'dark' : 'light';
     dispatch(setTheme(newTheme)); // Обновляем тему в Redux
   };
