@@ -63,7 +63,7 @@ services:
       # The HTTP port
       - "8081:80"
       # The Web UI (enabled by --api.insecure=true)
-      - "6000:8080"
+      - "8080:8080"
     networks:
       - bsac_chatbot_network
     volumes:
