@@ -28,19 +28,13 @@ services:
       - bsac_chatbot_network
     depends_on:
       - bsac_chatbot_api
-    healthcheck:
-      test: curl --fail http://localhost/ || exit 1
-      interval: 40s
-      timeout: 30s
-      retries: 3
-      start_period: 60s
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`chat.hlofiys.xyz`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.web.rule=Host(`chat.hlofiys.xyz`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
   bsac_chatbot_db:
     container_name: bsac_chatbot_db
     image: chromadb/chroma:latest
@@ -63,7 +57,7 @@ services:
       # The HTTP port
       - "8081:80"
       # The Web UI (enabled by --api.insecure=true)
-      - "6000:8080"
+      - "8080:8080"
     networks:
       - bsac_chatbot_network
     volumes:
