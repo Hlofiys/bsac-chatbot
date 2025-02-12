@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import { FC } from "react";
 import styles from "./styles/Chatbot.module.scss";
 import Header from "@/components/ui/header/Header";

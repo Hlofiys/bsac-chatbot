@@ -1,21 +1,25 @@
+"use client";
 import Image from "next/image";
 import { FC } from "react";
 import styles from "./MessageSection.module.scss";
 import { convertDate } from "@/utils/functions/convertDate";
 import RotatingClock from "../../icons/clock/RotatingClock";
 import { motion } from "framer-motion";
+import Typing from "./typing/Typing";
+import Alert from "@/components/icons/alert.icon/Alert";
 
 export interface IMessage {
   id: number;
   isBot?: boolean;
   sending?: boolean;
+  error?: { status: boolean; refetch: () => void };
   sender: "Вы" | "БГАС ассистент";
   sendDate: string /*2025-01-18T10:03:00Z*/;
   message: string;
 }
 
 const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
-  const { isBot, sender, sendDate, message, sending } = props;
+  const { isBot, sender, sendDate, message, sending, error } = props;
 
   return (
     <motion.div
@@ -39,14 +43,18 @@ const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
         <div className={styles.textBlock}>
           <article className={styles.messageHeader}>
             <p>{sender}</p>
-            {sending ? (
+            {error?.status ? (
+              <Alert fill="red" onClick={error.refetch}/>
+            ) : sending ? (
               <RotatingClock fill={"#A0A0A0"} />
             ) : (
-              <span>{convertDate(sendDate).time}</span>
+              <span>{sendDate && convertDate(sendDate).time}</span>
             )}
           </article>
 
-          <aside className={isBot ? styles.bot : styles.user}>{message}</aside>
+          <aside className={isBot ? styles.bot : styles.user}>
+            {isBot && sending ? <Typing /> : message}
+          </aside>
         </div>
       </section>
     </motion.div>

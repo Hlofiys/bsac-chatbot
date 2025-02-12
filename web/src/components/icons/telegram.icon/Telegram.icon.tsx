@@ -1,6 +1,6 @@
-import React from "react";
+import { FC } from "react";
 
-const Telegram = () => {
+const Telegram:FC = () => {
   return (
     <svg
       width="25"

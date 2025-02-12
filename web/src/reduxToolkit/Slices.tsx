@@ -37,12 +37,37 @@ const messagesSlice = createSlice({
           : message
       ));
     },
+    setErrorMessage: (_state, payload: PayloadAction<{id: number, refetch: ()=>void}>) => {
+      return (_state = _state.map((message) =>
+        message.id === payload.payload.id ? { ...message, error: {status: true, refetch: payload.payload.refetch} } : message
+      ));
+    },
+    setMessageContantToBot: (
+      _state,
+      payload: PayloadAction<{ id: number; message: string; sendDate: string }>
+    ) => {
+      return (_state = _state.map((message) =>
+        message.id === payload.payload.id
+          ? {
+              ...message,
+              sending: false,
+              message: payload.payload.message,
+              sendDate: payload.payload.sendDate,
+            }
+          : message
+      ));
+    },
   },
 });
 
 //export all actions:
 export const { setTheme, hydrateTheme } = themeSlice.actions;
-export const { setMessage, setSuccessMessage } = messagesSlice.actions;
+export const {
+  setMessage,
+  setSuccessMessage,
+  setErrorMessage,
+  setMessageContantToBot,
+} = messagesSlice.actions;
 
 //export all redusers
 export const themeReducer = themeSlice.reducer;

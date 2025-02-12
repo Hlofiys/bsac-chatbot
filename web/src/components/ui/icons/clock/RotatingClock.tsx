@@ -10,8 +10,6 @@ const RotatingClock: FC<ISVGProps> = (props) => {
       viewBox="0 0 237.54 237.54"
       width={15}
       height={15}
-      // width={otherProps?.width || 15}
-      // height={otherProps?.height || 15}
     >
       <circle
         cx="118.77"

@@ -14,7 +14,12 @@ import { Button } from "antd";
 import { IMessage } from "../chatList/messageSection/MessageSection";
 import { useDispatch, useSelector } from "react-redux";
 import { IInitialState } from "@/reduxToolkit/Interfaces";
-import { setMessage, setSuccessMessage } from "@/reduxToolkit/Slices";
+import {
+  setErrorMessage,
+  setMessage,
+  setMessageContantToBot,
+  setSuccessMessage,
+} from "@/reduxToolkit/Slices";
 import { useSendMessage } from "@/api/hooks/useSendMessage";
 
 const Footer: FC = () => {
@@ -22,38 +27,70 @@ const Footer: FC = () => {
   const messages = useSelector((state: IInitialState) => state.messages);
   const dispatch = useDispatch();
 
-  const { mutateAsync: send_message, isPending: isLoadingSending } =
-    useSendMessage();
+  const {
+    data: responseMessage,
+    mutateAsync: send_message,
+    isSuccess,
+    
+  } = useSendMessage();
 
-  const handler = useCallback(() => {
-    const localDate = new Date();
-    const year = localDate.getFullYear();
-    const month = String(localDate.getMonth() + 1).padStart(2, "0");
-    const day = String(localDate.getDate()).padStart(2, "0");
-    const hours = String(localDate.getHours()).padStart(2, "0");
-    const minutes = String(localDate.getMinutes()).padStart(2, "0");
-    const seconds = String(localDate.getSeconds()).padStart(2, "0");
+  const getFormattedDate = useCallback(() => {
+    return new Date().toISOString().split(".")[0] + "Z";
+  }, []);
 
-    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+  const handler = useCallback(async () => {
+    const messageId = Date.now(); // Уникальный ID
 
-    const newMessage: IMessage = {
-      id: messages.length + 1,
+    const newMessageUser: IMessage = {
+      id: messageId,
       sender: "Вы",
-      sendDate: formattedDate,
-      sending: isLoadingSending,
+      sendDate: getFormattedDate(),
+      sending: true, // Отправляется
       message: messageContant,
     };
 
-    send_message(messageContant);
-    dispatch(setMessage(newMessage));
+    const newMessageBot: IMessage = {
+      id: messageId + 1,
+      isBot: true,
+      sending: true,
+      sender: "БГАС ассистент",
+      sendDate: '',
+      message: "",
+    };
+    dispatch(setMessage(newMessageUser));
+    dispatch(setMessage(newMessageBot));
     setMessageContant("");
-  }, [messageContant, messages, dispatch, send_message, isLoadingSending]);
+
+    try {
+      await send_message(messageContant);
+      dispatch(setSuccessMessage(messageId)); // Изменяем статус отправленного сообщения
+    } catch (error) {
+      console.error("Ошибка при отправке сообщения:", error);
+      dispatch(setErrorMessage({id: messageId, refetch: ()=>send_message(messageContant)}));
+    }
+  }, [messageContant, dispatch, send_message, getFormattedDate]);
 
   useEffect(() => {
-    if (!isLoadingSending) {
-      dispatch(setSuccessMessage(messages.length + 1));
+    if (isSuccess && responseMessage?.data.response) {
+      // const botMessage: IMessage = {
+      //   id: Date.now(), // Уникальный ID для бота
+      //   isBot: true,
+      //   sending: false,
+      //   sender: "БГАС ассистент",
+      //   sendDate: getFormattedDate(),
+      //   message: responseMessage.data.response || "Ошибка",
+      // };
+
+      // dispatch(setMessage(botMessage));
+      dispatch(
+        setMessageContantToBot({
+          id: messages[messages.length - 1].id,
+          message: responseMessage?.data.response,
+          sendDate: getFormattedDate()
+        })
+      );
     }
-  }, [isLoadingSending, dispatch, messages.length]);
+  }, [messages, isSuccess, responseMessage?.data.response, dispatch, getFormattedDate]);
 
   const isDisabledSending = useMemo(
     () => !!!messageContant.trim() || messages[messages.length - 1]?.sending,

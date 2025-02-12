@@ -2,7 +2,7 @@ import { instance } from "@/axios";
 
 class MessageService {
   async send(message: string) {
-    return await instance.post("/chat", { message });
+    return await instance.post<{response: string}>("/chat", { message });
   }
 }
 

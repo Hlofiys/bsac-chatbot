@@ -11,6 +11,7 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
+    padding: 0;
   }
 
   &::-webkit-scrollbar {
@@ -50,13 +51,11 @@
   }
 
   @media (max-width: 768px) {
-    align-items: flex-start;
     padding: 20px 10px;
     gap: 12px;
   }
 
   @media (max-width: 480px) {
-    align-items: flex-start;
     padding: 15px 10px;
     gap: 12px;
   }
