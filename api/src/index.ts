@@ -4,12 +4,13 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { Document } from 'langchain/document';
 import * as fs from 'fs/promises';
+import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { CohereEmbeddings } from "@langchain/cohere";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
-import { HumanMessage, AIMessage, BaseMessage } from "@langchain/core/messages";
+import { HumanMessage, AIMessage, BaseMessage, BaseMessageFields } from "@langchain/core/messages";
 
 
 const app = express();
@@ -22,10 +23,12 @@ const CHROMA_URL = process.env.CHROMA_URL!;
 const DATA_DIRECTORY = path.join(__dirname, '../data');
 const CHROMA_COLLECTION_NAME = 'chatbot-collection';
 
+const additional_context = fsync.readFileSync(path.join("./context.txt")).toString();
+
 // Initialize clients and models
 const model = new ChatGoogleGenerativeAI({
     apiKey: GOOGLE_API_KEY,
-    modelName: 'gemini-2.0-flash', // Using gemini-pro is generally better for chat
+    modelName: 'gemini-pro', // Using gemini-pro is generally better for chat
     safetySettings: [
         {
             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -125,9 +128,6 @@ app.post('/api/chat', async (req, res): Promise<any> => {
 
         // Retrieve relevant context from vector store
         const vectorStore = await createChromaStore(embeddings, CHROMA_COLLECTION_NAME);
-        const results = await vectorStore.similaritySearch(message, 3); // Get top 3 results
-        let context = results.map(r => r.pageContent).join('\n\n');
-        // Removed static context, we're using dynamic context from vector DB
 
         const chatHistory: BaseMessage[] = [];
 
@@ -152,19 +152,19 @@ app.post('/api/chat', async (req, res): Promise<any> => {
         const systemPrompt = `Инструкции:
 - Ты чат бот помощник для студентов. Я предоставлю тебе методические указания для выполнения лабораторных работ, и ты должен помочь, не давая прямых ответов, а лишь наводя на размышления.
 - Если речь идёт о предоставленном методическом материале, вместо слова "контекст" используй "методические указания".
-- Будь полезен и отвечай, используя предоставленный материал; если не знаешь ответа, скажи "Я не знаю".
-- Не давай слишком прямых ответов, наводи студентов на мысли и помогай найти решение.`;
+- Будь полезен и отвечай, используя предоставленный материал; если не знаешь ответа, скажи "Я не знаю".`;
 
 
         // Function to get context for a specific message
         const getContextForMessage = async (userMessage: string): Promise<string> => {
-            const relevantDocs = await vectorStore.similaritySearch(userMessage, 3);
+            const relevantDocs = await vectorStore.similaritySearch(userMessage);
             return relevantDocs.map(doc => doc.pageContent).join('\n\n');
         };
 
       // Build messages with dynamic context for each user turn.
         const messagesWithContext: BaseMessage[] = [];
         messagesWithContext.push(new HumanMessage(systemPrompt)); // System prompt first
+        messagesWithContext.push(new HumanMessage(additional_context));
 
         for (const msg of chatHistory) {
             if (msg instanceof HumanMessage) {
@@ -174,7 +174,6 @@ app.post('/api/chat', async (req, res): Promise<any> => {
                 messagesWithContext.push(msg); // Add AI messages as they are
             }
         }
-
 
 
         const result = await model.invoke(messagesWithContext);
