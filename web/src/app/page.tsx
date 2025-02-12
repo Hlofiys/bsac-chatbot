@@ -1,10 +1,11 @@
 'use client'
 import { FC } from "react";
+import dynamic from 'next/dynamic';
 import styles from "./styles/Chatbot.module.scss";
 import Header from "@/components/ui/header/Header";
 import Footer from "@/components/ui/footer/Footer";
 import "@ant-design/v5-patch-for-react-19";
-import ChatList from "@/components/ui/chatList/ChatList";
+const ChatList = dynamic(() => import("@/components/ui/chatList/ChatList"), { loading: () => <p>Загрузка...</p>, ssr: false });
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Chatbot: FC = () => {
