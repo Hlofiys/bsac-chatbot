@@ -7,6 +7,7 @@ import RotatingClock from "../../icons/clock/RotatingClock";
 import { motion } from "framer-motion";
 import Typing from "./typing/Typing";
 import Alert from "@/components/icons/alert.icon/Alert";
+import { useParseTextToBlocks } from "@/hooks/parseText/useParseTextToBlocks";
 
 export interface IMessage {
   id: number;
@@ -44,7 +45,7 @@ const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
           <article className={styles.messageHeader}>
             <p>{sender}</p>
             {error?.status ? (
-              <Alert fill="red" onClick={error.refetch}/>
+              <Alert fill="red" onClick={error.refetch} />
             ) : sending ? (
               <RotatingClock fill={"#A0A0A0"} />
             ) : (
@@ -53,7 +54,15 @@ const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
           </article>
 
           <aside className={isBot ? styles.bot : styles.user}>
-            {isBot && sending ? <Typing /> : message}
+            {isBot ? (
+              sending ? (
+                <Typing />
+              ) : (
+                useParseTextToBlocks(message)
+              )
+            ) : (
+              message
+            )}
           </aside>
         </div>
       </section>

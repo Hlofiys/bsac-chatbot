@@ -4,28 +4,40 @@
   --bgColor: #3f3f3f; /* #3F3F3F -dark; #f5f5f5 -light */
   --headerBgColor: #121212; /* #121212 -dark; #ffffff -light */
   --darkTextColor: #f0f0f0; /* #F0F0F0 -dark; #515151 -light*/
-  --timeColor: #A0A0A0; 
+  --timeColor: #a0a0a0;
   --botMessageContentBg: #292929;
-  --userMessageContentBg: #00A3FF;
-  --botMessageContentColor: #FFFFFF;
-  --userMessageContentColor: #FFFFFF;
+  --userMessageContentBg: #00a3ff;
+  --botMessageContentColor: #ffffff;
+  --userMessageContentColor: #ffffff;
   --strokeColor: #303030; /* #303030 -dark; #dfdfdf -light*/
   --inputPlaceholder: #a0a0a0; /* #A0A0A0 -dark; #A0A0A0 -light */
   --blueColor: #00a3ff;
+
+  --codeBlockBg: #dadada;
+  --codeHeaderBg: #3c3c3c;
+  --codeHeaderColor: #dcdcdc;
+  --codeBg: #1e1e1e;
+  --codeTextColor: #d9d9d9;
 }
 
 [data-theme="light"] {
   --bgColor: #f5f5f5; /* #3F3F3F -dark; #f5f5f5 -light */
   --headerBgColor: #ffffff; /* #121212 -dark; #ffffff -light */
   --darkTextColor: #515151; /* #F0F0F0 -dark; #515151 -light*/
-  --timeColor: #A0A0A0; 
-  --botMessageContentBg: #FFFFFF;
-  --userMessageContentBg: #00A3FF;
+  --timeColor: #a0a0a0;
+  --botMessageContentBg: #ffffff;
+  --userMessageContentBg: #00a3ff;
   --botMessageContentColor: #515151;
-  --userMessageContentColor: #FFFFFF;
+  --userMessageContentColor: #ffffff;
   --strokeColor: #dfdfdf; /* #303030 -dark; #dfdfdf -light*/
   --inputPlaceholder: #a0a0a0; /* #A0A0A0 -dark; #A0A0A0 -light */
   --blueColor: #00a3ff;
+
+  --codeBlockBg: #222;
+  --codeHeaderBg: #e0e0e0;
+  --codeHeaderColor: #333;
+  --codeBg: #f0f0f0;
+  --codeTextColor: #222;
 }
 
 body {
@@ -35,7 +47,7 @@ body {
   align-items: center;
   background: var(--bgColor);
   margin: 0;
-/* 
+  /* 
   &::-webkit-scrollbar {
     width: 8px;
   }
