@@ -1,13 +1,13 @@
 "use client";
 import Image from "next/image";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import styles from "./MessageSection.module.scss";
 import { convertDate } from "@/utils/functions/convertDate";
 import RotatingClock from "../../icons/clock/RotatingClock";
 import { motion } from "framer-motion";
 import Typing from "./typing/Typing";
 import Alert from "@/components/icons/alert.icon/Alert";
-import { useParseTextToBlocks } from "@/hooks/parseText/useParseTextToBlocks";
+import { parseTextToBlocks } from "@/hooks/parseText/useParseTextToBlocks";
 
 export interface IMessage {
   id: number;
@@ -21,6 +21,9 @@ export interface IMessage {
 
 const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
   const { isBot, sender, sendDate, message, sending, error } = props;
+
+  // const parsedMessage = useMemo(() => {return useParseTextToBlocks(message)}, [message]);
+  const parsedMessage = useMemo(() => parseTextToBlocks(message), [message]);
 
   return (
     <motion.div
@@ -54,15 +57,7 @@ const MessageSection: FC<Omit<IMessage, "id">> = (props) => {
           </article>
 
           <aside className={isBot ? styles.bot : styles.user}>
-            {isBot ? (
-              sending ? (
-                <Typing />
-              ) : (
-                useParseTextToBlocks(message)
-              )
-            ) : (
-              message
-            )}
+            {isBot ? sending ? <Typing /> : parsedMessage : message}
           </aside>
         </div>
       </section>

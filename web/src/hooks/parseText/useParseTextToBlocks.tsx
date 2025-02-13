@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import styles from "./ParseText.module.scss";
 
-export const useParseTextToBlocks = (text: string) => {
+export const parseTextToBlocks = (text: string) => {
   const lines = text.split("\n");
   const result: JSX.Element[] = [];
   let codeBlock: string[] = [];
@@ -29,10 +29,10 @@ export const useParseTextToBlocks = (text: string) => {
       codeBlock.push(line);
     } else if (/^\*\*(.+)\*\*$/.test(line)) {
       // Обработка **Text** как заголовок второго уровня
-      const parsedLine = line.replace(/\*\*(.+)\*\*/, (match, p1) => {
+      const parsedLine = line.replace(/\*\*(.+)\*\*/, (_, p1) => {
         return p1.replace(
           /`([^`]+)`/g,
-          (match: any, code: any) => `<code>${code}</code>`
+          (_: string, code: string) => `<code>${code}</code>`
         );
       });
       result.push(
@@ -70,10 +70,10 @@ export const useParseTextToBlocks = (text: string) => {
 
       // Если строка содержит **Text** (заголовок второго порядка)
       if (/\*\*(.+)\*\*/.test(parsedLine)) {
-        parsedLine = parsedLine.replace(/\*\*(.+)\*\*/, (match, p1) => {
+        parsedLine = parsedLine.replace(/\*\*(.+)\*\*/, (_, p1) => {
           const parsedHeader = p1.replace(
             /`([^`]+)`/g,
-            (match: any, code: any) => `<code>${code}</code>` // Заменяем инлайн-код в заголовке
+            (_: string, code: string) => `<code>${code}</code>` // Заменяем инлайн-код в заголовке
           );
           // Преобразуем в заголовок второго порядка
           return `<h4>${parsedHeader}</h4>`;

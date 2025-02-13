@@ -1,5 +1,5 @@
 "use client";
-import { FC, Suspense } from "react";
+import { FC } from "react";
 import dynamic from "next/dynamic";
 import styles from "./styles/Chatbot.module.scss";
 import "@ant-design/v5-patch-for-react-19";
