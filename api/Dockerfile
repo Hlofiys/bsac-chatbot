@@ -31,6 +31,7 @@ WORKDIR /app
 # Copy only the necessary files from the builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/context.txt ./
 # Copy other necessary files that were created at build step.
 COPY --from=builder /app/node_modules ./node_modules
 
@@ -39,7 +40,7 @@ COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3000 
 
 # Define environment variable
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Run the app when the container launches
 CMD ["npm", "start"]
