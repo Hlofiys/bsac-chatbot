@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { Document } from 'langchain/document';
 import * as fs from 'fs/promises';
@@ -8,7 +8,6 @@ import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { CohereEmbeddings } from "@langchain/cohere";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { HumanMessage, AIMessage, BaseMessage, BaseMessageFields } from "@langchain/core/messages";
 
@@ -18,7 +17,6 @@ const port = process.env.PORT || 3000;
 
 // Configuration
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
-const COHERE_API_KEY = process.env.COHERE_API_KEY!;
 const CHROMA_URL = process.env.CHROMA_URL!;
 const DATA_DIRECTORY = path.join(__dirname, '../data');
 const CHROMA_COLLECTION_NAME = 'chatbot-collection';
@@ -52,9 +50,9 @@ const model = new ChatGoogleGenerativeAI({
   temperature: 0.5,
   topP: 0.8
 });
-const embeddings = new CohereEmbeddings({
-  apiKey: COHERE_API_KEY,
-  model: 'embed-multilingual-v3.0',
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  apiKey: GOOGLE_API_KEY,
+  model: 'text-embedding-004',
 });
 
 app.use(express.json());
@@ -106,7 +104,7 @@ app.post('/api/upload', async (req, res): Promise<any> => {
 });
 
 // Helper function to retrieve (or create) a Chroma vector store
-const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: string) => {
+const createChromaStore = async (embeddings: GoogleGenerativeAIEmbeddings, collectionName: string) => {
   try {
     return await Chroma.fromExistingCollection(embeddings, { collectionName, url: CHROMA_URL });
   } catch (e) {
@@ -160,8 +158,6 @@ app.post('/api/chat', async (req, res): Promise<any> => {
 Статический контекст — основные сведения о лабораторных работах (задания, требования, примеры).
 Используй этот контекст в первую очередь, но если информации недостаточно, дополняй ответ своими знаниями, чтобы он оставался логичным и полезным.
 В первую очередь используй статический контекст, он идёт в самом начале. Динамический контекст может предоставить нерелевантную информацию, так же в первую очередь смотри на прошлые сообщения пользователя, чтобы твои ответы точно учитывали их. К примеру если пользователь спрашивает цель 15 лабораторной работы, а затем спрашивает задания этой лабораторной, ты должен брать номер из истории сообщений пользователя а не из контекста.
-Обязательно учитывай прошлые сообщения пользователя! Если речь шла об одной лабораторной, затем пользователь предоставляет какие-то уточнения, обязательно отвечай на вопрос смотря на прошлые сообщения. Переписка должна выглядеть логичной и предсказуемой для пользователя, динамический контекст используй в последнюю очередь, это лишь доп источник знаний для определений и прошлой информации, но сам вопрос ответ должен строиться исключительно из вопросов пользователя и твоих ответов.
-Статический контекст это абсолютная верная информация, её можешь доверять целиком и полностью. К приммеру если пользователь спрашивает информацию о 15 лабораторной работе, ты можешь быть уверен что её цель и название в статическом контексте совпадают с реальными, не стоит уточнять об этом пользователя.
 
 Твой стиль общения:
 
