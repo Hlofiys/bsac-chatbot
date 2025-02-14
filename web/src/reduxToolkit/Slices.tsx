@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TTheme } from "./Interfaces";
 import { IInitialState } from "./Interfaces";
 import { IMessage } from "@/components/ui/chatList/messageSection/MessageSection";
+import { ISendMessage } from '@/api/services/message/Message.service';
 
 const initialState: IInitialState = {
   theme: "dark",
@@ -38,13 +39,26 @@ const messagesSlice = createSlice({
     },
     setErrorMessage: (
       _state,
-      payload: PayloadAction<{ id: number; refetch: () => void }>
+      payload: PayloadAction<{ id: number, dataToRefetch: ISendMessage }>
     ) => {
       return (_state = _state.map((message) =>
         message.id === payload.payload.id
           ? {
               ...message,
-              error: { status: true, refetch: payload.payload.refetch },
+              error: { status: true, dataToRefetch: payload.payload.dataToRefetch},
+            }
+          : message
+      ));
+    },
+    dropError: (
+      _state,
+      payload: PayloadAction<{id: number, error: undefined}>
+    ) => {
+      return (_state = _state.map((message) =>
+        message.id === payload.payload.id
+          ? {
+              ...message,
+              error: payload.payload.error,
             }
           : message
       ));
@@ -64,6 +78,10 @@ const messagesSlice = createSlice({
           : message
       ));
     },
+    removeMessage: (_state,
+      payload: PayloadAction<number>) => {
+        return _state = _state.filter(message=>message.id !== payload.payload)
+    }
   },
 });
 
@@ -73,7 +91,9 @@ export const {
   setMessage,
   setSuccessMessage,
   setErrorMessage,
+  dropError,
   setMessageContantToBot,
+  removeMessage
 } = messagesSlice.actions;
 
 //export all redusers

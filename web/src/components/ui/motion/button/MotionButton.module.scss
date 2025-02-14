@@ -1,0 +1,32 @@
+.button {
+  font-family: "Montserrat-Regular";
+  background-color: var(--botMessageContentBg);
+  color: var(--white);
+  padding: 6px 15px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #00a2ff3b;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    background-color: #00a2ff3b;
+    transform: translateY(2px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &.disabled {
+    background-color: #bfbfbf;
+    cursor: not-allowed;
+  }
+}

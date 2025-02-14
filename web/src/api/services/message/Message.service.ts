@@ -10,7 +10,7 @@ export interface ISendMessage {
 }
 class MessageService {
   async send(body: ISendMessage) {
-    return await instance.post<{ response: string }>("/chat", { ...body });
+    return await instance.post<{ response: string }>('/chat', { ...body });
   }
 }
 

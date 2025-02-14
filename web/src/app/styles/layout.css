@@ -18,6 +18,14 @@
   --codeHeaderColor: #dcdcdc;
   --codeBg: #1e1e1e;
   --codeTextColor: #d9d9d9;
+
+  --primary-red-dark: #e74c3c;
+  --hover-red-dark: #c0392b;
+  --active-red-dark: #d43f3a;
+
+  --white: #ffffff;
+  --black: #333333;
+  --border-radius: 8px;
 }
 
 [data-theme="light"] {
@@ -38,6 +46,14 @@
   --codeHeaderColor: #333;
   --codeBg: #f0f0f0;
   --codeTextColor: #222;
+
+  --primary-red-light: #ff6b6b;
+  --hover-red-light: #ff4d4d;
+  --active-red-light: #e04d4d;
+
+  --white: #ffffff;
+  --black: #333333;
+  --border-radius: 8px;
 }
 
 body {

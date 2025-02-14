@@ -11,6 +11,7 @@
     color: var(--botMessageContentColor);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     max-width: 300px;
+    z-index: 0;
 
     .skeletonLottie{
       width: 280px;

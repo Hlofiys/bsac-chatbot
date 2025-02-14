@@ -61,7 +61,12 @@
         color: var(--userMessageContentColor);
         background: var(--userMessageContentBg);
         border-radius: 14px 0px 14px 14px;
+        
+        &.errorMessage{
+          border-radius: 14px 0 10px 10px;
+        }
       }
+
     }
   }
 }

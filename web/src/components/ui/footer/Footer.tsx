@@ -15,6 +15,7 @@ import { IMessage } from "../chatList/messageSection/MessageSection";
 import { useDispatch, useSelector } from "react-redux";
 import { IInitialState } from "@/reduxToolkit/Interfaces";
 import {
+  removeMessage,
   setErrorMessage,
   setMessage,
   setMessageContantToBot,
@@ -22,6 +23,7 @@ import {
 } from "@/reduxToolkit/Slices";
 import { useSendMessage } from "@/api/hooks/useSendMessage";
 import { ISendMessage } from "@/api/services/message/Message.service";
+import { getFormattedDate } from "@/utils/functions/getFormattedDate";
 
 const Footer: FC = () => {
   const [messageContant, setMessageContant] = useState<string>("");
@@ -35,9 +37,7 @@ const Footer: FC = () => {
     isSuccess,
   } = useSendMessage();
 
-  const getFormattedDate = useCallback(() => {
-    return new Date().toISOString().split(".")[0] + "Z";
-  }, []);
+  const toFormatDate = useCallback(getFormattedDate, [getFormattedDate]);
 
   const handler = useCallback(async () => {
     const messageId = Date.now(); // Уникальный ID
@@ -45,7 +45,7 @@ const Footer: FC = () => {
     const newMessageUser: IMessage = {
       id: messageId,
       sender: "Вы",
-      sendDate: getFormattedDate(),
+      sendDate: toFormatDate(),
       sending: true, // Отправляется
       message: messageContant,
     };
@@ -60,31 +60,31 @@ const Footer: FC = () => {
     };
     dispatch(setMessage(newMessageUser));
     dispatch(setMessage(newMessageBot));
-    setNewBotMessageId(messageId + 1);
+    setNewBotMessageId(newMessageBot.id);
     setMessageContant("");
 
+    const body: ISendMessage = {
+      message: messageContant,
+      history: messages.map((item) => ({
+        role: item.isBot ? "assistant" : "user",
+        content: item.message,
+      })),
+    };
     try {
-      const body: ISendMessage = {
-        message: messageContant,
-        history: messages.map((item) => ({
-          role: item.isBot ? "assistant" : "user",
-          content: item.message,
-        })),
-      };
-
-      console.log(body)
-      await send_message(body);
-      dispatch(setSuccessMessage(messageId)); // Изменяем статус отправленного сообщения
-    } catch (error) {
-      console.error("Ошибка при отправке сообщения:", error);
+      await send_message(body, {
+        onSuccess: () => dispatch(setSuccessMessage(messageId)), // Изменяем статус отправленного сообщения
+      });
+    } catch (err) {
+      console.log(err)
       dispatch(
         setErrorMessage({
           id: messageId,
-          refetch: () => {},
+          dataToRefetch: body,
         })
       );
+      dispatch(removeMessage(newMessageBot.id));
     }
-  }, [messages, messageContant, dispatch, send_message, getFormattedDate]);
+  }, [messages, messageContant, dispatch, send_message, toFormatDate]);
 
   useEffect(() => {
     if (isSuccess && responseMessage?.data.response && newBotMessageId) {
@@ -92,7 +92,7 @@ const Footer: FC = () => {
         setMessageContantToBot({
           id: newBotMessageId,
           message: responseMessage?.data.response,
-          sendDate: getFormattedDate(),
+          sendDate: toFormatDate(),
         })
       );
     }
@@ -101,7 +101,7 @@ const Footer: FC = () => {
     isSuccess,
     responseMessage?.data.response,
     dispatch,
-    getFormattedDate,
+    toFormatDate
   ]);
 
   const isDisabledSending = useMemo(

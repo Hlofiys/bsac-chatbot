@@ -22,10 +22,16 @@
   color: var(--darkTextColor);
   line-height: 1.6;
   margin: 0;
+
+  code {
+    background: var(--codeBg);
+    margin: 0 2.5px;
+    padding: 2.5px 5px;
+    border-radius: 2.5px;
+  }
 }
 
 .inlineCode {
-  color: #f8f8f2;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: "Courier New", monospace;
@@ -39,6 +45,10 @@
 }
 
 .codeHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   background-color: var(--codeHeaderBg);
   color: var(--codeHeaderColor);
   font-size: 14px;
