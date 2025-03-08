@@ -1,18 +1,27 @@
 "use client";
 import Image from "next/image";
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  Children,
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import styles from "./MessageSection.module.scss";
 import { convertDate } from "@/utils/functions/convertDate";
 import RotatingClock from "../../icons/clock/RotatingClock";
 import { motion } from "framer-motion";
 import Typing from "./typing/Typing";
 import Alert from "@/components/icons/alert.icon/Alert";
-import { parseTextToBlocks } from "@/hooks/parseText/useParseTextToBlocks";
 import MotionButton from "../../motion/button/MotionButton";
 import RefetchIcon from "@/components/icons/refetch.icon/Refetch.icon";
 import { useDispatch } from "react-redux";
 import { ISendMessage } from "@/api/services/message/Message.service";
 import { useSendMessage } from "@/api/hooks/useSendMessage";
+import remarkGfm from "remark-gfm";
+import { message as AntdMessage } from "antd";
+import rehypeHighlight from "rehype-highlight";
 import {
   dropError,
   removeMessage,
@@ -22,6 +31,8 @@ import {
   setSuccessMessage,
 } from "@/reduxToolkit/Slices";
 import { getFormattedDate } from "@/utils/functions/getFormattedDate";
+import ReactMarkdown from "react-markdown";
+import CopyIcon from "@/components/icons/copy.icon/Copy.icon";
 
 export interface IMessage {
   id: number;
@@ -42,7 +53,7 @@ const MessageSection: FC<IMessage> = (props) => {
     isSuccess: isSuccessSending,
   } = useSendMessage();
 
-  const parsedMessage = useMemo(() => parseTextToBlocks(message), [message]);
+  // const parsedMessage = useMemo(() => parseTextToBlocks(message), [message]);
   const [newBotMessageId, setNewBotMessageId] = useState<number | null>(null);
   const toFormatDate = useCallback(getFormattedDate, [getFormattedDate]);
 
@@ -103,7 +114,7 @@ const MessageSection: FC<IMessage> = (props) => {
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="message"
+      className={styles.message}
     >
       <section
         className={`${styles.messageSection} ${
@@ -116,6 +127,7 @@ const MessageSection: FC<IMessage> = (props) => {
           width={50}
           height={50}
           className={styles.senderImg}
+          priority={true}
         />
         <div className={styles.textBlock}>
           <article className={styles.messageHeader}>
@@ -136,7 +148,137 @@ const MessageSection: FC<IMessage> = (props) => {
                 : `${styles.user} ${(error && styles.errorMessage) || ""}`
             }
           >
-            {isBot ? sending ? <Typing /> : parsedMessage : message}
+            {isBot ? (
+              sending ? (
+                <Typing />
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                  components={{
+                    h1: ({ children }) => (
+                      <h1 className={`${styles.heading} ${styles.h1}`}>
+                        {children}
+                      </h1>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className={`${styles.heading} ${styles.h2}`}>
+                        {children}
+                      </h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className={`${styles.heading} ${styles.h3}`}>
+                        {children}
+                      </h3>
+                    ),
+                    h4: ({ children }) => (
+                      <h4 className={`${styles.heading} ${styles.h4}`}>
+                        {children}
+                      </h4>
+                    ),
+                    h5: ({ children }) => (
+                      <h5 className={`${styles.heading} ${styles.h5}`}>
+                        {children}
+                      </h5>
+                    ),
+                    h6: ({ children }) => (
+                      <h6 className={`${styles.heading} ${styles.h6}`}>
+                        {children}
+                      </h6>
+                    ),
+                    p: ({ children }) => (
+                      <p className={styles.text}>{children}</p>
+                    ),
+                    code({ node, className, children, ...props }) {
+                      const isInline =
+                        node?.position?.start.line === node?.position?.end.line;
+
+                      const extractTextFromChildren = (
+                        children: ReactNode[] | string
+                      ): string => {
+                        let textContent = "";
+
+                        if (typeof children === "string") {
+                          textContent += children;
+                        } else {
+                          children.forEach((child: ReactNode | string) => {
+                            if (typeof child === "string") {
+                              textContent += child;
+                            } else if (React.isValidElement(child)) {
+                              textContent += extractTextFromChildren(
+                                Children.toArray(
+                                  (child.props as Element)
+                                    ?.children as unknown as ReactNode[]
+                                )
+                              );
+                            } else if (
+                              typeof child === "number" ||
+                              typeof child === "bigint"
+                            ) {
+                              textContent += child.toString();
+                            } else if (child === true) {
+                              textContent += "";
+                            }
+                          });
+                        }
+
+                        return textContent;
+                      };
+
+                      const match = /language-(\w+)/.exec(className || "");
+
+                      return isInline ? (
+                        <code className={styles.inlineCode}>{children}</code>
+                      ) : (
+                        <div className={styles.codeBlock}>
+                          <span className={styles.codeHeader}>
+                            {match && match[1]}
+                            <CopyIcon
+                              onClick={async () => {
+                                try {
+                                  if (children) {
+                                    await navigator.clipboard.writeText(
+                                      extractTextFromChildren(
+                                        children as ReactNode[]
+                                      )
+                                    );
+                                    AntdMessage.success("Код скопирован !");
+                                  }
+                                } catch (err) {
+                                  console.log(err);
+                                  AntdMessage.error(
+                                    "Произошла ошибка копирования !"
+                                  );
+                                }
+                              }}
+                            />
+                          </span>
+                          <pre className={styles.code}>
+                            <code {...props}>{children}</code>
+                          </pre>
+                        </div>
+                      );
+                    },
+                    ul: ({ children }) => (
+                      <ul className={styles.unorderedList}>{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className={styles.orderedList}>{children}</ol>
+                    ),
+                    li: ({ children }) => <li>{children}</li>,
+                    a: ({ children, href }) => (
+                      <a className={styles.link} href={href} target="_blank">
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
+                  {message}
+                </ReactMarkdown>
+              )
+            ) : (
+              message
+            )}
           </aside>
 
           {!isBot && error && (

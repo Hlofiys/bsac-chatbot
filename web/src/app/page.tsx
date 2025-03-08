@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import styles from "./styles/Chatbot.module.scss";
 import "@ant-design/v5-patch-for-react-19";
 const ChatList = dynamic(() => import("@/components/ui/chatList/ChatList"), {
-  loading: ()=><div/>,
+  loading: () => <div />,
   ssr: false,
 });
 import Header from "@/components/ui/header/Header";

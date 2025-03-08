@@ -8,6 +8,7 @@
   &.botSection {
     flex-direction: row;
   }
+
   &.userSection {
     flex-direction: row-reverse;
 
@@ -61,12 +62,122 @@
         color: var(--userMessageContentColor);
         background: var(--userMessageContentBg);
         border-radius: 14px 0px 14px 14px;
-        
-        &.errorMessage{
+
+        &.errorMessage {
           border-radius: 14px 0 10px 10px;
         }
       }
 
+      &.bot,
+      &.user {
+        .heading {
+          font-weight: 700;
+          margin: 16px 0;
+
+          &.h1 {
+            font-size: 22px;
+          }
+          &.h2 {
+            font-size: 20px;
+          }
+          &.h3 {
+            font-size: 18px;
+          }
+          &.h4 {
+            font-size: 16px;
+          }
+          &.h5 {
+            font-size: 14px;
+          }
+          &.h6 {
+            font-size: 12px;
+          }
+        }
+
+        .text {
+          font-size: 16px;
+          color: var(--darkTextColor);
+          line-height: 1.6;
+          margin: 0;
+
+          code {
+            background: var(--codeBg);
+            margin: 0 2.5px;
+            padding: 2.5px 5px;
+            border-radius: 2.5px;
+          }
+        }
+
+        .inlineCode {
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-family: "Courier New", monospace;
+        }
+
+        .codeBlock {
+          border-radius: 8px;
+          margin: 12px 0;
+          overflow-x: auto;
+
+          .codeHeader {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--codeHeaderBg);
+            color: var(--codeHeaderColor);
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 8px 8px 0 0;
+          }
+
+          .code {
+            background-color: var(--codeBg);
+            color: var(--codeTextColor);
+            font-family: "Courier New", monospace;
+            padding: 12px;
+            border-radius: 0 0 8px 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 14px !important;
+            margin: 0;
+          }
+        }
+
+        .link {
+          color: var(--blueColor);
+          text-decoration: none;
+          font-weight: 600;
+          cursor: pointer;
+          transition: color 0.2s ease-in-out;
+
+          &:hover {
+            color: var(--primaryHoverColor);
+          }
+
+          &:active {
+            color: var(--primaryActiveColor);
+          }
+        }
+
+        .orderedList,
+        .unorderedList {
+          padding-left: 20px;
+          margin-top: 10px;
+        }
+
+        .orderedList li,
+        .unorderedList li {
+          font-size: 16px;
+          color: var(--darkTextColor);
+          margin-bottom: 5px;
+
+          h4 {
+            margin: 0 0 5px;
+          }
+        }
+      }
     }
   }
 }
@@ -88,7 +199,7 @@
       width: 35px !important;
       height: 35px !important;
     }
-    
+
     .textBlock {
       gap: 5px;
 
@@ -108,6 +219,51 @@
         &.bot {
           border-radius: 14px 0px 14px 14px !important;
         }
+
+        &.bot,
+        &.user {
+          .heading {
+            &.h1 {
+              font-size: 20px;
+            }
+            &.h2 {
+              font-size: 18px;
+            }
+            &.h3 {
+              font-size: 16px;
+            }
+            &.h4 {
+              font-size: 14px;
+            }
+            &.h5 {
+              font-size: 12px;
+            }
+            &.h6 {
+              font-size: 10px;
+            }
+          }
+
+          .text {
+            font-size: 14px;
+          }
+
+          .codeHeader {
+            font-size: 13px;
+            padding: 6px 12px;
+
+            .code {
+              font-size: 12px !important;
+              padding: 10px;
+            }
+          }
+
+          .orderedList,
+          .unorderedList {
+            li {
+              font-size: 14px;
+            }
+          }
+        }
       }
     }
   }
@@ -115,22 +271,66 @@
 
 @media (max-width: 480px) {
   .messageSection {
-    
     .senderImg {
       display: none;
     }
     .textBlock {
       .messageHeader {
         font-size: 12px !important;
-  
+
         span {
           font-size: 10px !important;
         }
       }
-  
+
       aside {
         font-size: 10pt !important;
         padding: 9px 15px;
+
+        &.bot,
+        &.user {
+          .heading {
+            &.h1 {
+              font-size: 18px;
+            }
+            &.h2 {
+              font-size: 16px;
+            }
+            &.h3 {
+              font-size: 14px;
+            }
+            &.h4 {
+              font-size: 12px;
+            }
+            &.h5 {
+              font-size: 10px;
+            }
+            &.h6 {
+              font-size: 8px;
+            }
+          }
+
+          .text {
+            font-size: 12px;
+          }
+
+          .codeHeader {
+            font-size: 12px;
+            padding: 5px 10px;
+
+            .code {
+              font-size: 10px !important;
+              padding: 8px;
+            }
+          }
+
+          .orderedList,
+          .unorderedList {
+            li {
+              font-size: 12px;
+            }
+          }
+        }
       }
     }
   }

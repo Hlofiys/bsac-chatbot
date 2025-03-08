@@ -13,6 +13,7 @@ const Header: FC = () => {
           height={58}
           className={styles.image}
           alt="БГАС логотип"
+          priority={true}
         />
       </div>
 

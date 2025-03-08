@@ -1,3 +1,4 @@
+"use client";
 import { IInitialState } from "@/reduxToolkit/Interfaces";
 import { FC, ReactNode } from "react";
 import { useSelector } from "react-redux";
