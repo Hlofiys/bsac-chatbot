@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { Document } from 'langchain/document';
 import * as fs from 'fs/promises';
@@ -8,7 +8,6 @@ import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { CohereEmbeddings } from "@langchain/cohere";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { HumanMessage, AIMessage, BaseMessage, BaseMessageFields } from "@langchain/core/messages";
 
@@ -18,7 +17,6 @@ const port = process.env.PORT || 3000;
 
 // Configuration
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
-const COHERE_API_KEY = process.env.COHERE_API_KEY!;
 const CHROMA_URL = process.env.CHROMA_URL!;
 const DATA_DIRECTORY = path.join(__dirname, '../data');
 const CHROMA_COLLECTION_NAME = 'chatbot-collection';
@@ -52,9 +50,9 @@ const model = new ChatGoogleGenerativeAI({
   temperature: 0.5,
   topP: 0.8
 });
-const embeddings = new CohereEmbeddings({
-  apiKey: COHERE_API_KEY,
-  model: 'embed-multilingual-v3.0',
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  apiKey: GOOGLE_API_KEY,
+  model: 'text-embedding-004',
 });
 
 app.use(express.json());
@@ -106,7 +104,7 @@ app.post('/api/upload', async (req, res): Promise<any> => {
 });
 
 // Helper function to retrieve (or create) a Chroma vector store
-const createChromaStore = async (embeddings: CohereEmbeddings, collectionName: string) => {
+const createChromaStore = async (embeddings: GoogleGenerativeAIEmbeddings, collectionName: string) => {
   try {
     return await Chroma.fromExistingCollection(embeddings, { collectionName, url: CHROMA_URL });
   } catch (e) {
@@ -214,10 +212,10 @@ public class RecursionExample {
     for (const msg of chatHistory) {
       if (msg instanceof HumanMessage) {
         const dynamicContext = await getContextForMessage(msg.content.toString());
-        messagesWithContext.push(new HumanMessage({ content: `Методические указания:\n${dynamicContext}\n\nВопрос: ${msg.content}` }));
+        messagesWithContext.push(new HumanMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nВопрос: ${msg.content}` }));
       } else {
         const dynamicContext = await getContextForMessage(msg.content.toString());
-        messagesWithContext.push(new AIMessage({ content: `Методические указания:\n${dynamicContext}\n\nОтвет: ${msg.content}` }));
+        messagesWithContext.push(new AIMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nОтвет: ${msg.content}` }));
       }
     }
 
