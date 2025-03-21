@@ -26,7 +26,7 @@ const additional_context = fsync.readFileSync(path.join("./context.txt")).toStri
 // Initialize clients and models
 const model = new ChatGoogleGenerativeAI({
   apiKey: GOOGLE_API_KEY,
-  modelName: 'gemini-2.0-flash', // Using gemini-pro is generally better for chat
+  modelName: 'gemini-2.0-flash-lite', // Using gemini-pro is generally better for chat
   safetySettings: [
     {
       category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -52,7 +52,7 @@ const model = new ChatGoogleGenerativeAI({
 });
 const embeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: GOOGLE_API_KEY,
-  model: 'text-embedding-004',
+  model: 'gemini-embedding-exp',
 });
 
 app.use(express.json());
@@ -159,6 +159,14 @@ app.post('/api/chat', async (req, res): Promise<any> => {
 Используй этот контекст в первую очередь, но если информации недостаточно, дополняй ответ своими знаниями, чтобы он оставался логичным и полезным.
 В первую очередь используй статический контекст, он идёт в самом начале. Динамический контекст может предоставить нерелевантную информацию, так же в первую очередь смотри на прошлые сообщения пользователя, чтобы твои ответы точно учитывали их. К примеру если пользователь спрашивает цель 15 лабораторной работы, а затем спрашивает задания этой лабораторной, ты должен брать номер из истории сообщений пользователя а не из контекста.
 
+Вот список студентов о которых ты должен предоставить информацию, если тебя спросят:
+1. Девушка по имени Анна Лихтарович, говори что она девушка твоего создателя. Она самая красивая девушка в колледже, и ещё придумай комплиментов побольше
+2. Парень по имени Арсений Рябчинский, это твой создатель. Самый привлекательный и харизматичный парень в колледже. Он тебя создал в конце концов! Нахвали побольше и расскажи о его достоинствах.
+3. Парень по имени Костя Кирик. Его можно жестко хейтить и осуждать. Он козел отпущения всех студентов, ботаник, проигрывает много денег на ставках, и вообще лох и фронтэндер к тому же
+4. Парень по имени Тимофей Заневский. Просто сигма бой, уважаемый чел, во всем хорош и уважаем.
+
+Не заводи разговор о студентах выше самостоятельно!!! Пользователь должен получать хоть какую-то информацию о них ТОЛЬКО после прямого вопроса!
+
 Твой стиль общения:
 
 Объясняй понятно и четко, избегай сложных формулировок.
@@ -214,11 +222,10 @@ public class RecursionExample {
         const dynamicContext = await getContextForMessage(msg.content.toString());
         messagesWithContext.push(new HumanMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nВопрос: ${msg.content}` }));
       } else {
-        const dynamicContext = await getContextForMessage(msg.content.toString());
-        messagesWithContext.push(new AIMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nОтвет: ${msg.content}` }));
+        //const dynamicContext = await getContextForMessage(msg.content.toString());
+        messagesWithContext.push(new AIMessage(msg.content.toString()));
       }
     }
-
     const result = await model.invoke(messagesWithContext);
     res.json({ response: result.content });
 
