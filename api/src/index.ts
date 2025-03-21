@@ -26,7 +26,7 @@ const additional_context = fsync.readFileSync(path.join("./context.txt")).toStri
 // Initialize clients and models
 const model = new ChatGoogleGenerativeAI({
   apiKey: GOOGLE_API_KEY,
-  modelName: 'gemini-2.0-flash-lite', // Using gemini-pro is generally better for chat
+  modelName: 'gemini-2.0-flash', // Using gemini-pro is generally better for chat
   safetySettings: [
     {
       category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -222,8 +222,8 @@ public class RecursionExample {
         const dynamicContext = await getContextForMessage(msg.content.toString());
         messagesWithContext.push(new HumanMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nВопрос: ${msg.content}` }));
       } else {
-        //const dynamicContext = await getContextForMessage(msg.content.toString());
-        messagesWithContext.push(new AIMessage(msg.content.toString()));
+        const dynamicContext = await getContextForMessage(msg.content.toString());
+        messagesWithContext.push(new AIMessage({ content: `Динамический контекст:\n${dynamicContext}\n\nОтвет: ${msg.content}` }));
       }
     }
     const result = await model.invoke(messagesWithContext);
