@@ -30,7 +30,7 @@ const additional_context = fsync
 // Initialize Google Generative AI model
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-lite', // Using gemini-pro is generally better for chat
+    model: 'gemini-2.0-flash', // Using gemini-pro is generally better for chat
     safetySettings: [
         {
             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -183,7 +183,7 @@ app.post('/api/chat', async (req, res): Promise<any> => {
             },
             {
                 role: 'model',
-                parts: [{ text: 'Understood. I will follow the system prompt.' }],
+                parts: [{ text: 'Понял. Я буду следовать указаниям системы.' }],
             },
             {
                 role: 'user',
@@ -191,7 +191,7 @@ app.post('/api/chat', async (req, res): Promise<any> => {
             },
             {
                 role: 'model',
-                parts: [{ text: 'Understood. I have the additional context.' }],
+                parts: [{ text: 'Понял. У меня есть статический контекст.' }],
             }
         ];
 
@@ -214,7 +214,11 @@ app.post('/api/chat', async (req, res): Promise<any> => {
             },
         });
 
-        const result = await chat.sendMessage(message);
+        const final_message = `Динамический контекст: ${context} \n\n Вопрос: ${message}`
+
+        console.log(final_message);
+
+        const result = await chat.sendMessage(final_message);
         const response = result.response;
         res.json({ response: response.text() });
     } catch (error: any) {
