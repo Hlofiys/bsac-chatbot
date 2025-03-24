@@ -214,11 +214,7 @@ app.post('/api/chat', async (req, res): Promise<any> => {
             },
         });
 
-        const final_message = `Динамический контекст: ${context} \n\n Вопрос: ${message}`
-
-        console.log(final_message);
-
-        const result = await chat.sendMessage(final_message);
+        const result = await chat.sendMessage(`Динамический контекст: ${context} \n\n Вопрос: ${message}`);
         const response = result.response;
         res.json({ response: response.text() });
     } catch (error: any) {
