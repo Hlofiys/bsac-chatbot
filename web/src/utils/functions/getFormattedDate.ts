@@ -1,3 +1,9 @@
 export const getFormattedDate = () => {
-  return new Date().toISOString().split(".")[0] + "Z";
+  return new Date()
+    .toLocaleString("ru-RU", {
+      timeZone: "Europe/Minsk",
+      hour12: false,
+    })
+    .replace(",", "")
+    .replace(/\s/g, "T");
 };
