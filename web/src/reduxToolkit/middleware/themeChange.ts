@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Middleware } from "@reduxjs/toolkit";
 import { hydrateTheme } from "../Slices";
 import { IMessage } from "@/components/ui/chatList/messageSection/MessageSection";
@@ -12,20 +12,23 @@ interface ThemeInitAction {
   type: "theme/init";
 }
 
+
 export const themeMiddleware: Middleware<unknown, RootState> =
   (store) => (next) => (action) => {
     if ((action as ThemeInitAction).type === "theme/init") {
+      // Проверяем, что выполняемся на клиенте
       if (typeof window !== "undefined") {
-        // Даем время на инициализацию React перед чтением localStorage
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           const savedTheme = localStorage.getItem("theme") as
             | "light"
             | "dark"
             | null;
-          if (savedTheme) {
+
+          // Убеждаемся, что тема не undefined, чтобы избежать SSR-проблем
+          if (savedTheme && store.getState().theme !== savedTheme) {
             store.dispatch(hydrateTheme(savedTheme));
           }
-        });
+        }, 0);
       }
     }
     return next(action);
