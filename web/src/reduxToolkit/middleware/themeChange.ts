@@ -17,7 +17,7 @@ export const themeMiddleware: Middleware<unknown, RootState> =
     if ((action as ThemeInitAction).type === "theme/init") {
       if (typeof window !== "undefined") {
         // Даем время на инициализацию React перед чтением localStorage
-        requestIdleCallback(() => {
+        requestAnimationFrame(() => {
           const savedTheme = localStorage.getItem("theme") as
             | "light"
             | "dark"
