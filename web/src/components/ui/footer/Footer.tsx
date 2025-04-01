@@ -66,7 +66,7 @@ const Footer: FC = () => {
     const body: ISendMessage = {
       message: messageContant,
       history: messages.map((item) => ({
-        role: item.isBot ? "assistant" : "user",
+        role: item.isBot ? "model" : "user",
         content: item.message,
       })),
     };

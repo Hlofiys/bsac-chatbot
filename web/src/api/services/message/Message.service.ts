@@ -1,7 +1,7 @@
 import { instance } from "@/axios";
 
 export interface IHistoryItem {
-  role: "user" | "assistant";
+  role: "user" | "model";
   content: string;
 }
 export interface ISendMessage {
