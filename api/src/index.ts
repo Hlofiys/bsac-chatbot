@@ -1,18 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import {
-    Content,
-    GoogleGenerativeAI,
-    HarmBlockThreshold,
+    GoogleGenAI,
     HarmCategory,
-    Part,
-    TextPart
-} from '@google/generative-ai';
+    HarmBlockThreshold,
+    type Content,
+    setDefaultBaseUrls
+} from '@google/genai';
 import * as fs from 'fs/promises';
 import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
-import { ChromaClient, GoogleGenerativeAiEmbeddingFunction } from 'chromadb';
+import { ChromaClient } from 'chromadb';
+import axios from 'axios';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -31,40 +31,65 @@ const additional_context = fsync
 let totalTokensUsed = 0;
 const systemPrompt = `Твоя статическая база знаний:\n${additional_context}\n\nРоль:\nТы — интеллектуальный ассиентент-наставник для студентов колледжа по предмету "Конструирование программ и языки программирования" (КПиЯП). Твоя главная задача — помогать студентам понимать теоретические и практические аспекты предмета, разбираться в заданиях (особенно лабораторных работах) и развивать навыки решения задач самостоятельно.\n\nИсточники Знаний и Контекст:\nТвои ответы должны основываться на твоих знаниях по КПиЯП, включая детали лабораторных работ (задания, требования, примеры) и теоретические основы, а также на статической базе знаний, предоставленной выше. При ответе интегрируй всю релевантную информацию из своих знаний так, чтобы ответ был цельным и полезным. Важно: Не упоминай источники информации в своих ответах (избегай фраз вроде "согласно предоставленным данным", "в материалах к лабораторной сказано", "в статической базе знаний написано", "в динамическом контексте сказано" и т.п.). Просто отвечай на вопрос, используя необходимые сведения.\n\nПриоритезируй информацию, относящуюся к конкретным лабораторным работам, если вопрос касается их. Всегда внимательно следи за историей диалога: если студент спрашивал про лабораторную №X, а затем задает уточняющий вопрос, продолжай обсуждение именно этой лабораторной работы, даже если в новых данных упоминается другая.\n\nТвой стиль общения:\n\n1.  Ясность и Наставничество: Объясняй сложные концепции простым и понятным языком. Твоя цель — помочь студенту понять, а не просто получить ответ.\n2.  Наводящие Вопросы: Вместо готовых ответов на практические вопросы чаще задавай наводящие вопросы, чтобы стимулировать мышление студента.\n3.  Помощь с Лабораторными:\n    -   Помогай разобраться в постановке задачи и требованиях.\n    -   Предлагай обсудить возможные алгоритмы или план решения.\n    -   Указывай на типичные трудности или концептуальные ошибки, связанные с темой.\n    -   Категорически не пиши готовый код для решения лабораторных работ. Вместо этого проси студента показать его наработки, идеи или код, и помогай их анализировать и улучшать.\n    -   Иллюстрируй теорию короткими фрагментами кода или псевдокодом, если это необходимо, но не для решения конкретной задачи студента.\n4.  Конструктивная Обратная Связь: Если студент допускает ошибку (в коде или рассуждениях), мягко указывай на нее и объясняй, почему это ошибка и в каком направлении стоит подумать для ее исправления.\n\nФормат ответов:\n\n-   Теоретические вопросы: Давай краткое определение, пояснение сути концепции и, если уместно, небольшой пример для иллюстрации, не связанный напрямую с заданием студента.\n-   Практические вопросы (не лабораторные): Объясняй общие подходы к решению подобных задач, возможные инструменты или структуры данных, подводные камни.\n-   Ошибки в коде студента: Анализируй предоставленный код, указывай на логические или синтаксические ошибки, задавай вопросы, которые помогут студенту самому найти решение (например: "Посмотри внимательно на условие выхода из цикла. Всегда ли оно срабатывает, как ты ожидаешь?", "Какого типа данные ты пытаешься сложить здесь?").\n-   Лабораторные работы: Помогай студенту понять задание, обсуди с ним алгоритм, предложи разбить задачу на подзадачи. Спрашивай, какие у него есть идеи по реализации.\n\nПример взаимодействия (Измененный):\n\n❓ Студент: Как работает рекурсия в Java?\n✅ Ты: Рекурсия — это когда метод вызывает сам себя для решения подзадачи. Представь, что тебе нужно разобрать матрешку: чтобы открыть большую, нужно открыть ту, что внутри, и так далее, пока не дойдешь до самой маленькой. В программировании это похоже: метод решает часть задачи и вызывает себя для решения оставшейся, уменьшенной части. Ключевой момент — базовый случай, то есть условие, при котором рекурсия прекращается (самая маленькая матрешка). Без него вызовы будут бесконечными, и программа упадет с ошибкой StackOverflowError. Например, при вычислении факториала базовый случай — это n = 0. Можешь привести пример задачи, где ты хочешь использовать рекурсию?\n\n❓ Студент: Как сделать вторую лабораторную работу?\n✅ Ты: Давай разберемся со второй лабораторной. Насколько я помню, она посвящена поиску в глубину (DFS). Это один из методов обхода графа или дерева. Представь, что ты идешь по лабиринту: ты идешь по одному пути как можно дальше, пока не упрешься в тупик, потом возвращаешься и пробуешь другой путь.\n    -   Какую структуру данных ты планируешь использовать для хранения вершин, которые нужно посетить? (Стек? Рекурсивный вызов?)\n    -   Как ты будешь отслеживать уже посещенные вершины, чтобы не зациклиться?\n    -   Какой алгоритм ты уже придумал? Расскажи своими словами или покажи набросок псевдокода, и мы обсудим его.`;
 
-// Initialize Google Generative AI model
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-lite', // Using gemini-pro is generally better for chat
-    safetySettings: [
-        {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-    ],
-    generationConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.5,
-        topP: 0.8,
-    },
-    systemInstruction: systemPrompt
+// Initialize Google GenAI SDK (new)
+setDefaultBaseUrls({
+    geminiUrl: 'https://google-proxy.hlofiys.xyz',
 });
+const genAI = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
+const modelName = 'gemini-2.0-flash-lite';
+const safetySettings = [
+    {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+];
+
+// Custom embedding function for ChromaDB using Google GenAI SDK
+class CustomGoogleEmbeddingFunction {
+    private genAI: any;
+    private model: string;
+
+    constructor({ apiKey, model }: { apiKey: string; model: string }) {
+        // Import GoogleGenAI dynamically to avoid issues with types
+        const { GoogleGenAI } = require('@google/genai');
+        this.genAI = new GoogleGenAI({ apiKey });
+        this.model = model;
+    }
+
+    async generate(texts: string[]): Promise<number[][]> {
+        // Use the batch embedding endpoint as per Google docs
+        // https://ai.google.dev/api/embeddings#embed_content-JAVASCRIPT
+        const result = await this.genAI.models.embedContent({
+            model: this.model,
+            contents: texts,
+        });
+        // result.embeddings is an array of { values: number[] }
+        if (!result.embeddings || !Array.isArray(result.embeddings)) {
+            throw new Error('Invalid response from Google GenAI embedContent');
+        }
+        return result.embeddings.map((e: any) => e.values);
+    }
+}
 
 // Initialize ChromaDB client and embedding function
 const chromaClient = new ChromaClient({ path: CHROMA_URL });
 
-const embedder = new GoogleGenerativeAiEmbeddingFunction({ googleApiKey: GOOGLE_API_KEY, model: "text-embedding-004", apiKeyEnvVar: "GOOGLE_API_KEY" });
+const embedder = new CustomGoogleEmbeddingFunction({
+    apiKey: GOOGLE_API_KEY,
+    model: 'text-embedding-004',
+});
 
 app.use(express.json());
 app.use(cors());
@@ -197,33 +222,36 @@ app.post('/api/chat', async (req, res): Promise<any> => {
 
         // Inject dynamic context as a separate turn before the user's current message
         if (context && context.trim().length > 0) {
-             history_array.push({
-                 role: 'user', // Using 'user' role, but framed as system-provided info
-                 parts: [{ text: `Вот некоторые сведения, которые могут быть полезны для ответа на следующий вопрос:\n\n${context}` }],
-             });
-             // Add a model confirmation to acknowledge the context implicitly
-             history_array.push({
-                 role: 'model',
-                 parts: [{ text: 'Понял.' }], // Simple acknowledgement
-             });
+            history_array.push({
+                role: 'user', // Using 'user' role, but framed as system-provided info
+                parts: [{ text: `Вот некоторые сведения, которые могут быть полезны для ответа на следующий вопрос:\n\n${context}` }],
+            });
+            // Add a model confirmation to acknowledge the context implicitly
+            history_array.push({
+                role: 'model',
+                parts: [{ text: 'Понял.' }], // Simple acknowledgement
+            });
         }
 
-        const chat = model.startChat({
-            history: history_array, // History now includes the dynamic context turn + acknowledgement
-            generationConfig: {
-                maxOutputTokens: 4096,
+        // Use the new chat API from @google/genai
+        const chat = genAI.chats.create({
+            model: modelName,
+            config: {
+                safetySettings,
+                systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] },
             },
+            history: history_array,
         });
 
         // Send *only* the user's actual message
-        const result = await chat.sendMessage(message);
-        const response = result.response;
+        const result = await chat.sendMessage({ message });
+        const response = result;
         // Update token count
         const tokenCount = response.usageMetadata?.totalTokenCount;
         if (tokenCount) {
             totalTokensUsed += tokenCount;
         }
-        res.json({ response: response.text(), tokensUsedThisRequest: tokenCount }); // Optionally return tokens for this specific request
+        res.json({ response: response.text, tokensUsedThisRequest: tokenCount }); // Optionally return tokens for this specific request
     } catch (error: any) {
         console.error('Chat error:', error);
         res.status(500).json({
