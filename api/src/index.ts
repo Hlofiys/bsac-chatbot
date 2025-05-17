@@ -12,7 +12,6 @@ import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
 import { ChromaClient } from 'chromadb';
-import axios from 'axios';
 
 const app = express();
 const port = process.env.PORT || 3000;
