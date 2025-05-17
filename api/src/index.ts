@@ -55,6 +55,11 @@ const model = genAI.getGenerativeModel({
             threshold: HarmBlockThreshold.BLOCK_NONE,
         },
     ],
+    generationConfig: {
+        maxOutputTokens: 4096,
+        temperature: 0.5,
+        topP: 0.8,
+    },
     systemInstruction: systemPrompt
 });
 
@@ -217,7 +222,10 @@ app.post('/api/chat', async (req, res): Promise<any> => {
         }
 
         const chat = model.startChat({
-            history: history_array // History now includes the dynamic context turn + acknowledgement
+            history: history_array, // History now includes the dynamic context turn + acknowledgement
+            generationConfig: {
+                maxOutputTokens: 4096,
+            },
         });
 
         // Send *only* the user's actual message
