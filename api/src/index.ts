@@ -8,19 +8,17 @@ import {
     Part,
     TextPart
 } from '@google/generative-ai';
-import OpenAI from 'openai';
 import * as fs from 'fs/promises';
 import fsync from 'node:fs';
 import pdf from 'pdf-parse';
 import * as path from 'path';
-import { ChromaClient } from 'chromadb';
+import { ChromaClient, GoogleGenerativeAiEmbeddingFunction } from 'chromadb';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuration
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
 const CHROMA_URL = process.env.CHROMA_URL!;
 const DATA_DIRECTORY = path.join(__dirname, '../data');
 const CHROMA_COLLECTION_NAME = 'chatbot-collection';
@@ -66,18 +64,7 @@ const model = genAI.getGenerativeModel({
 // Initialize ChromaDB client and embedding function
 const chromaClient = new ChromaClient({ path: CHROMA_URL });
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY, baseURL: 'https://integrate.api.nvidia.com/v1', });
-
-const embedder = {
-    async generate(texts: string[]): Promise<number[][]> {
-        const response = await openai.embeddings.create({
-            model: "baai/bge-m3",
-            input: texts,
-        });
-        // OpenAI returns an array of objects with 'embedding' property
-        return response.data.map((item: any) => item.embedding);
-    }
-};
+const embedder = new GoogleGenerativeAiEmbeddingFunction({ googleApiKey: GOOGLE_API_KEY, model: "text-embedding-004", apiKeyEnvVar: "GOOGLE_API_KEY" });
 
 app.use(express.json());
 app.use(cors());
